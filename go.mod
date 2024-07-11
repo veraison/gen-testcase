@@ -5,10 +5,10 @@ go 1.22
 require (
 	github.com/fxamacker/cbor/v2 v2.7.0
 	github.com/lestrrat-go/jwx/v2 v2.1.0
+	github.com/setrofim/yaml v0.0.0-20240711105758-91bb1efaf631
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/veraison/go-cose v1.1.0
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -25,4 +25,5 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/crypto v0.24.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

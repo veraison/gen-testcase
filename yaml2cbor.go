@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/fxamacker/cbor/v2"
-	"gopkg.in/yaml.v3"
+	"github.com/setrofim/yaml"
 )
 
 var em, emErr = cbor.EncOptions{
