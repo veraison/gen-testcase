@@ -1,0 +1,13 @@
+---
+0:
+  0: ACME Ltd signing key
+  1: !ruby/struct:CBOR::Tagged
+    tag: 32
+    value: https://acme.example
+1:
+  0: !ruby/struct:CBOR::Tagged
+    tag: 1
+    value: 1640908800
+  1: !ruby/struct:CBOR::Tagged
+    tag: 1
+    value: 1767139200
