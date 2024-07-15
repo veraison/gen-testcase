@@ -1,4 +1,4 @@
-module github.com/setrofim/gen-testcase
+module github.com/veraison/gen-testcase
 
 go 1.22
 
