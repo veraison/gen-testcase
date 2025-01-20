@@ -101,7 +101,12 @@ func main() {
 			}
 		}
 
-		out, err = sign(out, meta, *contentType, signer)
+		kid, err := getKidFromJWK(keyData)
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+
+		out, err = sign(out, meta, *contentType, kid, signer)
 	}
 
 	if outPath == "-" || *writeToStdout {
