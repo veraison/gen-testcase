@@ -28,7 +28,7 @@ document, you can:
 
 ### Installation
 
-    go install github.com/setrofim/gen-testcase@latest
+    go install github.com/veraison/gen-testcase@latest
 
 ### Usage
 
