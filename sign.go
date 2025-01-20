@@ -73,6 +73,25 @@ func getAlgAndKeyFromJWK(j []byte) (cose.Algorithm, crypto.Signer, error) {
 	return alg, key, nil
 }
 
+func getKidFromJWK(j []byte) ([]byte, error) {
+	k, err := jwk.ParseKey(j)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(k.KeyID()) != 0 {
+		return []byte(k.KeyID()), nil
+	}
+
+	// Generate a key ID from the JWK Thumbprint if none exist
+	// See https://datatracker.ietf.org/doc/html/rfc7638
+	kid, err := k.Thumbprint(crypto.SHA256)
+	if err != nil {
+		return nil, err
+	}
+	return kid, nil
+}
+
 func ellipticCurveToAlg(c elliptic.Curve) cose.Algorithm {
 	switch c {
 	case elliptic.P256():
@@ -103,6 +122,7 @@ func sign(
 	payload []byte,
 	meta []byte,
 	contentType string,
+	kid []byte,
 	signer cose.Signer,
 ) ([]byte, error) {
 	if signer == nil {
@@ -121,6 +141,8 @@ func sign(
 
 	message.Headers.Protected.SetAlgorithm(alg)
 	message.Headers.Protected[cose.HeaderLabelContentType] = contentType
+	message.Headers.Protected[cose.HeaderLabelKeyID] = kid
+
 	if meta != nil {
 		message.Headers.Protected[HeaderLabelMeta] = meta
 	}
