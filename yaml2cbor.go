@@ -13,9 +13,25 @@ var em, emErr = cbor.EncOptions{
 	}.EncMode()
 
 func retag(v interface{}) (interface{}, bool) {
-	m, ok := v.(map[string]interface{})
-	if !ok {
-		return v, false
+	var m  map[string]interface{}
+
+	mi, ok := v.(map[interface{}]interface{})
+	if ok {
+		m = make(map[string]interface{})
+
+		for k, v := range mi {
+			sk, ok := k.(string)
+			if !ok {
+				return v, false
+			}
+
+			m[sk] = v
+		}
+	} else {
+		m, ok = v.(map[string]interface{})
+		if !ok {
+			return v, false
+		}
 	}
 
 	if len(m) !=  2 {
