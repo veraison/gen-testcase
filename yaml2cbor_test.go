@@ -58,6 +58,27 @@ func Test_encodedCBOR(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func Test_encodedCBOR_inside_tag(t *testing.T) {
+    text :=`
+tag: 25
+value:
+  encodedCBOR:
+    0: "foo"
+`
+    expected := []byte{
+        0xd8, 0x19, // tag(25)
+          0x46, // bstr(6)
+            0xa1, // map(1)
+              0x00, // key: 0
+              0x63, // value: tstr(3)
+                0x66, 0x6f, 0x6f, // "foo"
+    }
+
+    out, err := yaml2cbor([]byte(text))
+    assert.NoError(t, err)
+    assertCBOREq(t, expected, out)
+}
+
 func Test_YAML_binary(t *testing.T) {
 	text := `
 0:

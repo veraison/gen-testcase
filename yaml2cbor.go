@@ -143,6 +143,13 @@ func encodeCBORRecursively(v interface{}) (interface{}, error) {
 			updated = append(updated, encodedVal)
 		}
 		return updated, nil
+	case cbor.Tag:
+		updatedContent, error := encodeCBORRecursively(t.Content)
+		if error != nil {
+			return nil, err
+		}
+
+		return  cbor.Tag{ Number: t.Number, Content: updatedContent }, nil
 	default:
 		return v, nil
 	}
