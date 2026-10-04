@@ -4,24 +4,23 @@ package main
 
 import (
 	"crypto"
-	"crypto/rand"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/rsa"
-	"strings"
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 
+	"github.com/lestrrat-go/jwx/v3/jwk"
 	cose "github.com/veraison/go-cose"
-	"github.com/lestrrat-go/jwx/v2/jwk"
 )
-
 
 const (
 	HeaderLabelMeta = int64(8)
-	noAlg = cose.Algorithm(-65537)
+	noAlg           = cose.Algorithm(-65537)
 )
 
 func coseSignerFromJWK(j []byte) (cose.Signer, error) {
@@ -48,7 +47,7 @@ func getAlgAndKeyFromJWK(j []byte) (cose.Algorithm, crypto.Signer, error) {
 
 	var key crypto.Signer
 
-	err = k.Raw(&key)
+	err = jwk.Export(k, &key)
 	if err != nil {
 		return noAlg, nil, err
 	}
@@ -64,7 +63,11 @@ func getAlgAndKeyFromJWK(j []byte) (cose.Algorithm, crypto.Signer, error) {
 	case *rsa.PrivateKey:
 		alg = rsaJWKToAlg(k)
 		if alg == noAlg {
-			return noAlg, nil, fmt.Errorf("unknown RSA algorithm %q", k.Algorithm().String())
+			key_alg, ok := k.Algorithm()
+			if !ok {
+				return noAlg, nil, fmt.Errorf("JWK algorithm is invalid")
+			}
+			return noAlg, nil, fmt.Errorf("unknown RSA algorithm %q", key_alg.String())
 		}
 	default:
 		return noAlg, nil, fmt.Errorf("unknown private key type %v", reflect.TypeOf(key))
@@ -79,8 +82,12 @@ func getKidFromJWK(j []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	if len(k.KeyID()) != 0 {
-		return []byte(k.KeyID()), nil
+	k_id, ok := k.KeyID()
+	if !ok {
+		return nil, fmt.Errorf("cannot get key id of JWK")
+	}
+	if len(k_id) != 0 {
+		return []byte(k_id), nil
 	}
 
 	// Generate a key ID from the JWK Thumbprint if none exist
@@ -106,7 +113,12 @@ func ellipticCurveToAlg(c elliptic.Curve) cose.Algorithm {
 }
 
 func rsaJWKToAlg(k jwk.Key) cose.Algorithm {
-	switch k.Algorithm().String() {
+	k_alg, ok := k.Algorithm()
+	if !ok {
+		return noAlg
+	}
+
+	switch k_alg.String() {
 	case "PS256":
 		return cose.AlgorithmPS256
 	case "PS384":
@@ -159,4 +171,3 @@ func sign(
 
 	return wrap, nil
 }
-
