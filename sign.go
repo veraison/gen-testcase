@@ -59,7 +59,7 @@ func getAlgAndKeyFromJWK(j []byte) (cose.Algorithm, crypto.Signer, error) {
 			return noAlg, nil, fmt.Errorf("unknown elliptic curve %v", crv)
 		}
 	case ed25519.PrivateKey:
-		alg = cose.AlgorithmEd25519
+		alg = cose.AlgorithmEdDSA
 	case *rsa.PrivateKey:
 		alg = rsaJWKToAlg(k)
 		if alg == noAlg {
@@ -86,7 +86,7 @@ func getKidFromJWK(j []byte) ([]byte, error) {
 	if !ok {
 		return nil, fmt.Errorf("cannot get key id of JWK")
 	}
-	if len(k_id) != 0 {
+	if k_id != "" {
 		return []byte(k_id), nil
 	}
 
