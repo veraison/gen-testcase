@@ -8,12 +8,12 @@ import (
 )
 
 var em, emErr = cbor.EncOptions{
-		IndefLength: cbor.IndefLengthForbidden,
-		TimeTag:     cbor.EncTagRequired,
-	}.EncMode()
+	IndefLength: cbor.IndefLengthForbidden,
+	TimeTag:     cbor.EncTagRequired,
+}.EncMode()
 
 func retag(v interface{}) (interface{}, bool) {
-	var m  map[string]interface{}
+	var m map[string]interface{}
 
 	mi, ok := v.(map[interface{}]interface{})
 	if ok {
@@ -34,7 +34,7 @@ func retag(v interface{}) (interface{}, bool) {
 		}
 	}
 
-	if len(m) !=  2 {
+	if len(m) != 2 {
 		return v, false
 	}
 
@@ -49,7 +49,7 @@ func retag(v interface{}) (interface{}, bool) {
 	}
 
 	return cbor.Tag{
-		Number: uint64(tag.(int)),
+		Number:  uint64(tag.(int)), //nolint:gosec
 		Content: value,
 	}, true
 }
@@ -86,13 +86,13 @@ func retagRecursively(v interface{}) interface{} {
 	}
 }
 
-func encodeCBOR(v interface{}) (interface{}, bool, error) {
+func encodeCBOR(v interface{}) (interface{}, bool, error) { //nolint:gocritic
 	m, ok := v.(map[string]interface{})
 	if !ok {
 		return v, false, nil
 	}
 
-	if len(m) !=  1 {
+	if len(m) != 1 {
 		return v, false, nil
 	}
 
@@ -144,24 +144,24 @@ func encodeCBORRecursively(v interface{}) (interface{}, error) {
 		}
 		return updated, nil
 	case cbor.Tag:
-		updatedContent, error := encodeCBORRecursively(t.Content)
-		if error != nil {
+		updatedContent, err2 := encodeCBORRecursively(t.Content)
+		if err2 != nil {
 			return nil, err
 		}
 
-		return  cbor.Tag{ Number: t.Number, Content: updatedContent }, nil
+		return cbor.Tag{Number: t.Number, Content: updatedContent}, nil
 	default:
 		return v, nil
 	}
 }
 
 func yaml2cbor(data []byte) ([]byte, error) {
-        m := make(map[interface{}]interface{})
+	m := make(map[interface{}]interface{})
 
-	err := yaml.Unmarshal([]byte(data), &m)
-        if err != nil {
-                return nil, err
-        }
+	err := yaml.Unmarshal(data, &m)
+	if err != nil {
+		return nil, err
+	}
 
 	retagged := retagRecursively(m)
 
